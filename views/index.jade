@@ -1,0 +1,260 @@
+doctype html(lang='en')
+head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width')
+    meta(name='mobile-web-app-capable', content='yes')
+    meta(name='apple-mobile-web-app-capable', content='yes')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title WRWD
+    link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css')
+    link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
+    link(rel='stylesheet', href='//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')
+    link(rel='stylesheet', href='stylesheets/app.css')
+    link(rel='stylesheet', href='stylesheets/style.css')
+    link(rel='stylesheet', href='stylesheets/tree-nav.css')
+    link(rel='stylesheet', href='/stylesheets/leaflet-draw.css')
+    link(rel='stylesheet', href='/stylesheets/leaflet-dvf.css')
+    link(rel='stylesheet', href='/stylesheets/leaflet.label.css')
+    link(rel='stylesheet', href='/stylesheets/leaflet-groupedoverlay.css')
+    link(rel='stylesheet', href='/stylesheets/MarkerCluster.css')
+    link(rel='stylesheet', href='/stylesheets/MarkerCluster.Default.css')
+    link(rel='apple-touch-icon', sizes='76x76', href='stylesheets/img/favicon-76.png')
+    link(rel='apple-touch-icon', sizes='120x120', href='stylesheets/img/favicon-120.png')
+    link(rel='apple-touch-icon', sizes='152x152', href='stylesheets/img/favicon-152.png')
+    link(rel='icon', sizes='196x196', href='stylesheets/img/favicon-196.png')
+    link(rel='icon', type='image/x-icon', href='stylesheets/img/favicon.ico')
+  body.skin-blue
+    if user
+      .navbar.navbar-default.navbar-fixed-top(role='navigation')
+        .container-fluid
+          .navbar-header
+            button(type='button' data-toggle='collapse' data-target='#navTools').navbar-toggle
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+            a.navbar-brand.hidden-xs.white Wheat Ridge Water District  
+          #navTools.navbar-collapse.collapse
+            div.navbar-right
+              ul.nav.navbar-nav
+                li
+                  a(href='/logout' title='Log Out').btn.btn-primary.btn-md.pull-right.top-link
+                    span.i.fa.fa-sign-out.white 
+                li
+                  button(type='button' id='sidebar-toggle-btn').btn.btn-md.btn-primary.top-button.pull-right
+                    i.fa.fa-sort.fa-rotate-90      
+                li
+                  button(id='hydrantTable' data-widget='hydrantTable' title='Search Hydrants').btn.btn-primary.btn-md.top-button.pull-right
+                    i.fa.fa-search
+                li
+                  button(id='hydrant-lable-btn' data-widget='hydrant-lable-btn' title='Label Hydrants').btn.btn-primary.btn-md.top-button.pull-right
+                    i.fa.fa-tag
+                li
+                  button(id='dimension-lable-btn' data-widget='dimension-lable-btn' title='Label Dimensions').btn.btn-primary.btn-md.top-button.pull-right
+                    i.fa.fa-arrows-h
+                li
+                  button(data-widget='zoomExtent' title='Zoom To Extent').btn.btn-primary.btn-md.top-button.pull-right
+                    i.fa.fa-arrows-alt
+          // /.navbar-collapse
+      #container
+        #sidebar.sidebar-wrapper
+          ul(data-toggle='nav-tree' id='tree-menu').nav.nav-pills.nav-stacked.nav-tree
+            li
+              a(href='#')
+                i.fa.fa-globe
+                span.blue.
+                  &nbsp Map Layers
+              ul.nav.nav-pills.nav-stacked.nav-tree
+                li
+                  a(href='#' id='hydrants').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.hydrant-color
+                    span.blue.
+                      &nbsp; Hydrants &nbsp;
+                    i.fa.fa-check.pull-right.blue
+                  a(href='#' id='hydrants-blowoff').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.blowoff-color
+                    span.blue.
+                      &nbsp; Hydrants (Blow Off) &nbsp;
+                    i.fa.fa-check.pull-right.blue
+                  a(href='#' id='mainline').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-minus.mainline-color
+                    span.blue.
+                      &nbsp; Main Line &nbsp;
+                    i.fa.fa-check.pull-right.blue
+                  a(href='#' id='main-valve').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.main-valve-color
+                    span.blue.
+                      &nbsp; Main Valve &nbsp;
+                    i.fa.fa-plus-square.pull-right.blue
+                  a(href='#' id='connector-valve').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.connector-valve-color
+                    span.blue.
+                      &nbsp; Connector Valve &nbsp;
+                    i.fa.fa-plus-square.pull-right.blue
+                  a(href='#' id='fire-valve').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.fire-valve-color
+                    span.blue.
+                      &nbsp; Fire Valve &nbsp;
+                    i.fa.fa-plus-square.pull-right.blue
+                  a(href='#' id='valve').list-group-item.data-item.menu-toggle.toc-items
+                    i.fa.fa-map-marker.valve-color
+                    span.blue.
+                      &nbsp; Valve &nbsp;
+                    i.fa.fa-plus-square.pull-right.blue
+          ul(data-toggle='nav-tree' id='tree-menu').nav.nav-pills.nav-stacked.nav-tree
+            li
+              a(href='#')
+                i.fa.fa-list
+                span.blue.
+                  &nbsp Feature Data
+              ul.nav.nav-pills.nav-stacked.nav-tree
+                li
+                  form#inputForm
+                    .form-group.col-lg-12
+                        legend
+                          button(type='button' id='save-btn' data-widget='save-btn' title='Save Feature Data').btn.btn-sm.btn-primary.pull-right
+                            i.fa.fa-save
+                          button(type='button' id='download-btn' data-widget='download-btn' title='Download Maintenance Report').btn.btn-sm.btn-primary.menu-button.pull-right
+                            i.fa.fa-download
+                          #legend.blue Hydrant Details 
+                      .form-group.col-lg-12
+                        label#att_1_label.control-label.blue(for='att_1') Hydrant Number
+                        .controls
+                          input#att_1.form-control.input-lg(name='att_1', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_2_label.control-label.blue(for='att_2') Certainty of Location
+                        .controls
+                          input#att_2.form-control.input-lg(name='att_2', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_3_label.control-label.blue(for='att_3') Notes
+                        .controls
+                          textarea#att_3.form-control(name='att_3', placeholder='', rows='3')
+                      .form-group.col-lg-12
+                        label#att_4_label.control-label.blue(for='att_4') Location
+                        .controls
+                          input#att_4.form-control.input-lg(name='att_4', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_5_label.control-label.blue(for='att_5') Location Remarks
+                        .controls
+                          input#att_5.form-control.input-lg(name='att_5', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_6_label.control-label.blue(for='att_6') Street Number
+                        .controls
+                          input#att_6.form-control.input-lg(name='att_6', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_7_label.control-label.blue(for='att_7') Street Name
+                        .controls
+                          input#att_7.form-control.input-lg(name='att_7', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_8_label.control-label.blue(for='att_8') Make
+                        .controls
+                          input#att_8.form-control.input-lg(name='att_8', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_9_label.control-label.blue(for='att_9') Model
+                        .controls
+                          input#att_9.form-control.input-lg(name='att_9', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_10_label.control-label.blue(for='att_10') Model Measurement
+                        .controls
+                          input#att_10.form-control.input-lg(name='att_10', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_11_label.control-label.blue(for='att_11') Model Nozzle
+                        .controls
+                          input#att_11.form-control.input-lg(name='att_11', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_12_label.control-label.blue(for='att_12') Age
+                        .controls
+                          input#att_12.form-control.input-lg(name='att_12', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_13_label.control-label.blue(for='att_13') Bury
+                        .controls
+                          input#att_13.form-control.input-lg(name='att_13', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label#att_14_label.control-label.blue(for='att_14') Open
+                        .controls
+                          input#att_14.form-control.input-lg(name='att_14', type='text', placeholder='')
+                      .form-group.col-lg-12
+                        label.control-label.blue(for='carto_id_') ID
+                        .controls
+                          #ID.input-xlarge(name='ID') 
+        div.row
+            #map.leafletMap
+        div(id='welcomeModal' tabindex='-1' role='dialog' aria-labelledby='parcelModalLabel' aria-hidden='true').modal.fade
+          div.modal-dialog
+            div.modal-content
+              div.modal-body
+                #welcome.alert.alert-info
+                    strong Wheat Ridge Water District GIS Web Map
+                    br
+                    strong(id='userWelcome') Welcome Back #{user.fullName}
+                    br
+                    strong Please wait while map data loads   
+        div(id='panoModal' tabindex='-1' role='dialog' aria-labelledby='parcelModalLabel' aria-hidden='true').modal.fade
+          div.modal-dialog
+            div.modal-content
+              div.modal-body
+                div(id='panoLabel')
+                div(id='panoDiv')
+         div(id='panoModal-Unavailable' tabindex='-1' role='dialog' aria-labelledby='parcelModalLabel' aria-hidden='true').modal.fade
+          div.modal-dialog
+            div.modal-content
+              div.modal-body
+                #unavailable Sorry, Street View is Unavailable for Selected Location
+        div(id='hydrantModal' tabindex='-1' role='dialog' aria-hidden='true').modal.fade
+          div.modal-dialog
+            div.modal-content
+              div.modal-body
+                table(id="hydrantResults" cellspacing="0" width="100%").table.table-striped.table-bordered
+                  thead
+                    tr
+                      th Hydrant Number
+                      th Location
+                      th Make
+                      th Operating Nut
+                        tbody(id='definedResults').definedResults
+    else
+      div.row
+      div.col-lg-4
+      div.col-lg-4.text-center
+        h2.login-welcome Welcome to Wheat Ridge Water Distict GIS
+        h2.login-welcome Login to get started
+        h2.login-welcome
+          a.btn.btn-primary(href="/login") Login now
+      div.col-lg-4
+    script(src='//code.jquery.com/jquery-1.11.1.min.js') 
+    script(src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js')
+    script(src='https://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js')
+    script(src='https://cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.js')
+    //leaflet
+    script(src='//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')
+    //app
+    script(src='javascripts/app.js')
+    //Google API
+    script(src='http://maps.googleapis.com/maps/api/js?v=3.7&sensor=true_or_false')
+    script(src='javascripts/Google.js')
+    //plugins
+    script(src='javascripts/tree-nav.js')
+    //Marker Cluster
+    script(src='javascripts/leaflet.markercluster-src.js')
+    //Esri Leaflet Core
+    script(src='http://cdn-geoweb.s3.amazonaws.com/esri-leaflet/1.0.0-rc.5/esri-leaflet.js')
+    //Leaflet Lable
+    script(src='javascripts/Leaflet.label.js')
+    //Leaflet Image
+    script(src='javascripts/leaflet-image.js')
+    //Grouped Overlay
+    script(src='javascripts/leaflet-groupedoverlay.js')
+    //Leaflet DVF
+    script(src='javascripts/leaflet-dvf.js')
+    //Leaflet Vector Layers
+    script(src='javascripts/leaflet-lvector.js')
+    //Leaflet Draw
+    script(src='javascripts/leaflet-draw.js')
+    //Leaflet Maki Markers
+    script(src='javascripts/leaflet-makimarkers.js')
+    //Spin
+    script(src='javascripts/spin-min.js')
+    script(src='javascripts/leaflet-spin.js')
+    //Pull Carto DB
+    script(src='javascripts/leaflet-pull-carto-db.js')
